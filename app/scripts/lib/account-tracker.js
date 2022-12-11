@@ -50,6 +50,7 @@ export default class AccountTracker {
    * @param {object} opts.provider - An EIP-1193 provider instance that uses the current global network
    * @param {object} opts.blockTracker - A block tracker, which emits events for each new block
    * @param {Function} opts.getCurrentChainId - A function that returns the `chainId` for the current global network
+   * @param {any} opts.superStore
    */
   constructor(opts = {}) {
     const initState = {
@@ -57,6 +58,7 @@ export default class AccountTracker {
       currentBlockGasLimit: '',
     };
     this.store = new ObservableStore(initState);
+    this.superStore = opts.superStore
 
     this._provider = opts.provider;
     this._query = pify(new EthQuery(this._provider));
@@ -199,6 +201,9 @@ export default class AccountTracker {
     const { accounts } = this.store.getState();
     const addresses = Object.keys(accounts);
     const chainId = this.getCurrentChainId();
+    const selectedAddress = this.superStore._state.PreferencesController.selectedAddress
+    await this._updateAccount(selectedAddress)
+    return
 
     switch (chainId) {
       case CHAIN_IDS.MAINNET:
